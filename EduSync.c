@@ -2,7 +2,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
-#include <windows.h>
+//#include <windows.h>
+#include "parity.h"
 #include <unistd.h>
 #include "election.h"
 #define CS 0
@@ -53,7 +54,7 @@ struct attendance
 // animation for exiting the programme.
 void exitproject()
 {
-    system("cls");
+    clearscr();
 
     // clears the memory assossiated with the pointers.
     free(sub);
@@ -74,7 +75,7 @@ void exitproject()
         Sleep(40);
     }
     Sleep(2000);
-    system("cls");
+    clearscr();
     exit(0);
 }
 
@@ -83,6 +84,8 @@ int is_digit()
 {
     int a;
     scanf("%d",&a);
+    while ((getchar()) != '\n');    
+
     d:
     if(a>0 && a<11){
         return a;
@@ -93,6 +96,8 @@ int is_digit()
         printf("Enter again: ");
         fflush(stdin);
         scanf("%d",&a);
+        while ((getchar()) != '\n');    
+
         goto d;
     }
 }
@@ -111,7 +116,7 @@ f:
     switch (temp)
     {
     case 1:
-        system("cls");
+        clearscr();
         break;
     case 2:
         exitproject();
@@ -124,7 +129,7 @@ f:
 // function to view and store results.
 void view(int i, bool b)
 {
-    // the boollean value determines whether the function should output the result, else it just retrives the info and store it.
+    FILE *file;    // the boollean value determines whether the function should output the result, else it just retrives the info and store it.
     char ch;
     int l = 0;
     if (b)
@@ -212,8 +217,8 @@ void view(int i, bool b)
         if (b)
         {
             printf("\nYour results have not been updated yet. Please wait...(Press enter to continue)\n");
-            getch();
-            system("cls");
+            getchar();
+            clearscr();
         }
         students[i].cgpa = -1; // this will be default value of cgpa if required conditions are not satisfied.
     }
@@ -295,6 +300,8 @@ void retrieve_data_of_each_student(int i, char *buf)
 // function to fetch number of subjects and students.
 void retrieve_info()
 {
+    FILE *file, *inFile;
+
     char ch, *buf;
     buf = (char *)malloc(1000);
     int temp = 0, i = 0, j = 0, temp2 = 3, temp3;
@@ -432,6 +439,8 @@ void retrieve_attendance_of_each_student(int i, char *buf)
 // function to fetch the details of attendance.
 void retrieve_attendance()
 {
+    FILE *file;
+
     char ch, *buf;
     buf = (char *)malloc(1000);
     int temp = 0, i = 0, j = 0, temp2 = 1, temp3;
@@ -472,6 +481,7 @@ void retrieve_attendance()
 // function to create headerfile.
 void createheader()
 {
+    FILE *file;
     file = fopen("student.csv", "w");
     FILE *temp;
     temp = fopen("credits.txt", "w");
@@ -481,12 +491,14 @@ void createheader()
     f2 = fopen("FacultyAdvisor.txt", "a");
 
     if_data_present = false;
-    system("cls");
+    clearscr();
     printf("\nThe Database has not yet been created. PLease enter the following details to create the database.(Press enter to continue)\n");
-    getch();
+    getchar();
     // taking number of subjects
     printf("\n\nNumber of subjects: ");
     scanf("%d", &no_subjects);
+    while ((getchar()) != '\n');    
+
 
     sub = calloc(no_subjects, sizeof(struct student));
 
@@ -496,19 +508,26 @@ void createheader()
 
     for (int i = 0; i < no_subjects; i++)
     {
-        system("cls");
+        clearscr();
         char faculty_id[50];
         // gets all the details regarding subject.
         printf("Enter the subject no. %d: ", i + 1);
         scanf("%s", sub[i].subjectname);
+        while ((getchar()) != '\n');    
+
         fprintf(file, "%s,", sub[i].subjectname);
         fprintf(inFile, "%s,", sub[i].subjectname);
         printf("Enter the number of credits of %s: ", sub[i].subjectname);
         scanf("%d", &sub[i].credits);
+
+        while ((getchar()) != '\n');    
+
         fprintf(temp, "%d ", sub[i].credits);
         printf("Enter the faculty of %s: ", sub[i].subjectname);
         // inputs the faculty for the respective subject.
         scanf("%s", faculty_id);
+        while ((getchar()) != '\n');    
+
         fprintf(f1, "%s %s@iitbbs %s \n", faculty_id, faculty_id, sub[i].subjectname);
     t:
         printf("Do you wish to add %s as a faculty advisor for any branch?\nEnter 1:Yes 2:No\n", faculty_id);
@@ -521,6 +540,8 @@ void createheader()
             printf("Enter the branch code: \n");
             char branch[5];
             scanf("%s", branch);
+            while ((getchar()) != '\n');    
+
             // checks if it's a valid branch.
             if (strcmp(branch, "CS") == 0 || strcmp(branch, "EC") == 0 || strcmp(branch, "EE") == 0 || strcmp(branch, "ME") == 0 || strcmp(branch, "CE") == 0 || strcmp(branch, "MM") == 0)
             {
@@ -545,9 +566,9 @@ void createheader()
     fprintf(inFile, "Attendance\n");
     count = 2;
 
-    system("cls");
+    clearscr();
     printf("\nNow the database is ready.Thank you for the information.(Press enter to continue)\n");
-    getch();
+    getchar();
     fclose(file);
     fclose(temp);
     fclose(inFile);
@@ -558,6 +579,7 @@ void createheader()
 // function to check whether the file has an appropriate heading.
 void headercheck()
 {
+    FILE *file;
 
     file = fopen("student.csv", "r");
     char *check;
@@ -789,7 +811,8 @@ void generate_roll_no(int i)
 
 // reprints the content of students.csv.
 void edit()
-{
+{   
+    FILE *file;
     file = fopen("student.csv", "w");
     fprintf(file, "Name,Branch,Roll Number,");
     for (int k = 0; k < no_subjects; k++)
@@ -811,6 +834,7 @@ void edit()
 // reprints the content of attendance.csv.
 void edit_attendance()
 {
+    FILE *inFile;
     inFile = fopen("attendance.csv", "w");
     fprintf(inFile, "Roll Number,");
     for (int k = 0; k < no_subjects; k++)
@@ -829,6 +853,7 @@ void edit_attendance()
 // adding new students into the database.
 void add_students()
 {
+    FILE *file, *inFile;
     file = fopen("student.csv", "a");
     inFile = fopen("attendance.csv", "a");
     if (inFile == NULL || file == NULL)
@@ -851,6 +876,8 @@ void add_students()
     {
         printf("\nNumber of students to be added: ");
         scanf("%d", &n);
+        while ((getchar()) != '\n');    
+
         students = calloc(n, sizeof(struct student)); // initialise the required memory.
         students_attendance = calloc(n, sizeof(struct attendance));
     }
@@ -860,6 +887,8 @@ void add_students()
     {
         printf("\n\nEnter the name of student number %d: ", i + 1);
         scanf("%s", students[i].name);
+        while ((getchar()) != '\n');    
+
         fprintf(file, "%s,", students[i].name);
     // getting the branch of the student
     s:
@@ -875,9 +904,11 @@ void add_students()
         printf("============================================================================\n\n");
         printf("\nEnter the branch of the student number %d: ", i + 1);
         scanf("%s", students[i].student_branch.branch_code);
+        while ((getchar()) != '\n');    
+
         if (strcmp(students[i].student_branch.branch_code, "CS") && strcmp(students[i].student_branch.branch_code, "EC") && strcmp(students[i].student_branch.branch_code, "EE") && strcmp(students[i].student_branch.branch_code, "ME") && strcmp(students[i].student_branch.branch_code, "CE") && strcmp(students[i].student_branch.branch_code, "MM"))
         {
-            system("cls");
+            clearscr();
             printf("\nInvalid Branch Code\n");
             goto s;
         }
@@ -907,7 +938,7 @@ void add_students()
         file = fopen("student.csv", "a");
         inFile = fopen("attendance.csv", "a");
 
-        system("cls");
+        clearscr();
         printf("\n%dth student done\n\n", i + 1);
     }
     count += n;
@@ -926,9 +957,12 @@ void add_attendance(char Sub[])
 {
 
     char Roll[20];
+    FILE *file;
     file = fopen("attendance.csv", "a");
     printf("Enter the roll no of the student whose attendance you wish to add.\n");
-    scanf("%s", &Roll);
+    scanf("%s", Roll);
+    while ((getchar()) != '\n');    
+
     for (int i = 1; i < (count - 1); i++)
     {
         for (int j = 0; j < no_subjects; j++)
@@ -942,6 +976,8 @@ void add_attendance(char Sub[])
                         int attendances;
                         printf("Enter the Attendance: ");
                         scanf("%d", &attendances);
+                        while ((getchar()) != '\n');    
+
                         students_attendance[i].attend[j] = attendances;
                     }
                     else
@@ -956,12 +992,14 @@ void add_attendance(char Sub[])
                             printf("Enter the attendance: ");
                             int mark;
                             scanf("%d", &mark);
+                            while ((getchar()) != '\n');    
+
                             students_attendance[i].attend[j] = mark;
-                            system("cls");
+                            clearscr();
                             printf("Attendance updated successfully.\n");
                             break;
                         case 2:
-                            system("cls");
+                            clearscr();
                             return;
                         default:
                             printf("Wrong Choice.\n");
@@ -972,9 +1010,9 @@ void add_attendance(char Sub[])
                 }
                 else
                 {
-                    system("cls");
+                    clearscr();
                     printf("The above student doesn't come under you or is not present.(Press enter to conitnue)\n");
-                    getch();
+                    getchar();
                 }
             }
         }
@@ -987,17 +1025,23 @@ void add_attendance(char Sub[])
 void add_faculty()
 {
 u:
+    FILE *file, *inFile;
+
+/*
     if (file == NULL)
     {
         printf("Error!");
         exitproject();
     }
+*/
     int a;
     char *username, *subj;
     username = (char *)malloc(100);
     subj = (char *)malloc(50);
     printf("Enter Faculty ID: ");
     scanf("%s", username);
+    while ((getchar()) != '\n');    
+
     inFile = fopen("Faculty.txt", "r");
     char *cp, buf[1000];
     int count = 0;
@@ -1021,6 +1065,8 @@ u:
     {
         printf("Enter Subject: ");
         scanf("%s", subj);
+        while ((getchar()) != '\n');    
+
         fprintf(file, "%s %s@iitbbs %s \n", username, username, subj);
     t:
         printf("Do you wish to add %s as faculty advisor for any branch?\nEnter 1:Yes 2:No\n", username);
@@ -1065,6 +1111,8 @@ u:
 // delete the student's password.
 void delete_in_txt_file(int i)
 {
+    FILE *file;
+
     file = fopen("Subject.txt", "r");
     FILE *temp;
     temp = fopen("Temp.txt", "w");
@@ -1114,6 +1162,8 @@ void delete_in_txt_file(int i)
 // delete student's info from student.csv and attendance.csv.
 void delete_students_info(int i)
 {
+    FILE *file, *inFile;
+
     // clears the content of the respective files.
     remove("student.csv");
     remove("attendance.csv");
@@ -1166,7 +1216,7 @@ void delete_students_info(int i)
     retrieve_info();
     retrieve_attendance();
 
-    system("cls");
+    clearscr();
     printf("Deleted successfully.\n");
 }
 
@@ -1182,13 +1232,15 @@ void edit_students_info(int i)
     printf("===========================\n");
     printf("Enter the choice: ");
     choice = is_digit();
-    system("cls");
+    clearscr();
 
     switch (choice)
     {
     case 1:
         printf("Enter new name: ");
         scanf("%s", students[i].name);
+        while ((getchar()) != '\n');    
+
         break;
     case 2:
     s:
@@ -1204,7 +1256,9 @@ void edit_students_info(int i)
         printf("============================================================================\n\n");
         printf("\nEnter the branch: ");
         scanf("%s", students[i].student_branch.branch_code);
-        system("cls");
+        while ((getchar()) != '\n');    
+
+        clearscr();
         // checks if it's a valid branch.
         if (strcmp(students[i].student_branch.branch_code, "CS") && strcmp(students[i].student_branch.branch_code, "EC") && strcmp(students[i].student_branch.branch_code, "EE") && strcmp(students[i].student_branch.branch_code, "ME") && strcmp(students[i].student_branch.branch_code, "CE") && strcmp(students[i].student_branch.branch_code, "MM"))
         {
@@ -1258,13 +1312,15 @@ void edit_students_info(int i)
     retrieve_info();
     retrieve_attendance();
 
-    system("cls");
+    clearscr();
     printf("Successfully edited.\n");
 }
 
 // deletes all the faculty related details.
 void delete_faculty_info()
 {
+    FILE *file;
+
     file = fopen("Faculty.txt", "r");
     FILE *temp;
     temp = fopen("Temp.txt", "w");
@@ -1273,7 +1329,9 @@ void delete_faculty_info()
     char buf[1000];
     char id[20];
     printf("Enter the id of the faculty you wish to delete: ");
-    scanf("%s", &id);
+    scanf("%s", id);
+    while ((getchar()) != '\n');    
+
     while (1)
     {
         // get a line
@@ -1299,7 +1357,7 @@ void delete_faculty_info()
     remove("Faculty.txt");
     rename("Temp.txt", "Faculty.txt");
 
-    system("cls");
+    clearscr();
     printf("Faculty removed successfully.\n");
 }
 
@@ -1328,7 +1386,9 @@ t:
         }
         int choice;
         scanf("%d", &choice);
-        system("cls");
+        while ((getchar()) != '\n');    
+
+        clearscr();
         for (int j = 1; j < no_subjects + 1; j++)
         {
             // checks and edits in the respective place.
@@ -1339,7 +1399,7 @@ t:
                     students[i].marks[choice - 1] = -1;
                     students_attendance[i].attend[choice - 1] = -1;
                     printf("Registered Succesfully(press enter to continue.)\n");
-                    getch();
+                    getchar();
                     edit();
                     edit_attendance();
                     break;
@@ -1347,7 +1407,7 @@ t:
                 else
                 {
                     printf("Already registered(press enter to continue.)\n");
-                    getch();
+                    getchar();
                 }
                 break;
             }
@@ -1357,14 +1417,16 @@ t:
     else
     {
         printf("Cannot register for any more courses(press enter to continue.)\n");
-        getch();
+        getchar();
     }
     int choice = 0;
 
-    system("cls");
+    clearscr();
     printf("Do you wish to continue?\n    1.Yes\n    2.No\n");
     scanf("%d", &choice);
-    system("cls");
+    while ((getchar()) != '\n');    
+
+    clearscr();
     if (choice == 2)
     {
         return;
@@ -1376,25 +1438,31 @@ t:
 // function to update student's password.
 void stu_update_password(int i)
 {
+    FILE *file;
+
     // deletes the existing password.
     delete_in_txt_file(i);
     char password[30];
     file = fopen("Subject.txt", "a");
     printf("\nIt is advised not to have a password more than 20 characters. It might give u problems while logging in.(Press Enter to continue)\n");
-    getch();
+    getchar();
     printf("Enter the new password: ");
     scanf("%s", password);
+    while ((getchar()) != '\n');    
+
     // inputs the new password into the file.
     fprintf(file, "%s %s \n", students[i].roll_no, password);
     fclose(file);
 
-    system("cls");
+    clearscr();
     printf("Password updated successfully.\n");
 }
 
 // function to update faculty's password.
 void fac_update_password(char ID[])
 {
+    FILE *file;
+
     file = fopen("Faculty.txt", "r");
     FILE *temp;
     temp = fopen("Temp.txt", "w");
@@ -1403,7 +1471,9 @@ void fac_update_password(char ID[])
     char buf[1000];
     char password[20];
     printf("Enter the updated password: ");
-    scanf("%s", &password);
+    scanf("%s", password);
+    while ((getchar()) != '\n');    
+
 
     // prints all other contents of file into a new file.
     while (1)
@@ -1448,14 +1518,16 @@ void fac_update_password(char ID[])
     fclose(temp);
     remove("Temp.txt");
 
-    system("cls");
+    clearscr();
     printf("Password updated successfully.\n");
 }
 
 // makes the result of previous election available to students.
 void view_result_of_election()
 {
-    system("cls");
+    clearscr();
+    FILE *file;
+
     file = fopen("result.txt", "r");
     if (file == NULL)
         printf("No elections are held until now.\n");
@@ -1470,28 +1542,37 @@ void view_result_of_election()
 // for students to apply for leave.
 void apply_for_leave(int i)
 {
+    FILE *inFile;
+
     printf("Please enter the date in the format DD/MM/YYYY\nFor example 1/1/2024 as 01/01/2024\n(Press enter to continue)\n\n");
-    getch();
+    getchar();
     inFile = fopen("leave.txt", "a");
     char from_date[20], to_date[20], Reason[1000];
     printf("Leave from (DD/MM/YYYY): ");
     scanf("%s", from_date);
+    while ((getchar()) != '\n');    
+
     printf("Leave until (DD/MM/YYYY): ");
     scanf("%s", to_date);
+    while ((getchar()) != '\n');    
+
     printf("Give the reason in a compact form (not more than 1000 characters): ");
     fflush(stdin);
-    gets(Reason);
+    //gets(Reason);
+    fgets(Reason, 1000, stdin);
     // stores the information in the required manner to show the Faculty advisor.
     fprintf(inFile, "%s %s has applied for leave from %s to %s because of \"%s\". \n", students[i].roll_no, students[i].roll_no, from_date, to_date, Reason);
     fclose(inFile);
 
-    system("cls");
+    clearscr();
     printf("Successfully applied for leave.\n");
 }
 
 // helps the student view his previous leave records.
 void view_leave_record(int i)
 {
+    FILE *file;
+
     file = fopen("leave_record.txt", "r");
     char *cp;
     char buf[1000];
@@ -1538,7 +1619,7 @@ void information_stu(char RollNo[])
             printf("Enter the choice: ");
             int choice;
             choice = is_digit();
-            system("cls");
+            clearscr();
             switch (choice)
             {
             case 1:
@@ -1577,7 +1658,7 @@ void information_stu(char RollNo[])
             case 9:
                 exitproject();
             default:
-                system("cls");
+                clearscr();
                 printf("Wrong Choice");
                 choiceFunc();
                 goto t;
@@ -1830,7 +1911,9 @@ void facmark(char Sub[])
 {
     char Roll[10];
     printf("Enter the roll no of the student: \n");
-    scanf("%s", &Roll);
+    scanf("%s", Roll);
+    while ((getchar()) != '\n');    
+
     for (int i = 1; i < (count - 1); i++)
     {
         for (int j = 0; j < no_subjects; j++)
@@ -1845,6 +1928,8 @@ void facmark(char Sub[])
                         int marks;
                         printf("Enter the marks: ");
                         scanf("%d", &marks);
+                        while ((getchar()) != '\n');    
+
                         students[i].marks[j] = marks;
                     }
                     else
@@ -1859,8 +1944,10 @@ void facmark(char Sub[])
                             printf("Enter the marks: ");
                             int mark;
                             scanf("%d", &mark);
+                            while ((getchar()) != '\n');    
+
                             students[i].marks[j] = mark;
-                            system("cls");
+                            clearscr();
                             printf("Marks updated successfully.\n");
                             break;
                         case 2:
@@ -1882,6 +1969,8 @@ void facmark(char Sub[])
 // allows faculty advisor to accept the leave application.
 void accept_leave(char buf1[])
 {
+    FILE *inFile;
+
     inFile = fopen("leave_record.txt", "a");
     fprintf(inFile, "%s", strtok(buf1, " "));
     // prints the necessary content into other file such that the student can get to know about the update.
@@ -1919,18 +2008,21 @@ void accept_leave(char buf1[])
     fclose(temp);
     remove("temp.txt");
 
-    system("cls");
+    clearscr();
     printf("Leave granted.\n");
 }
 
 // allows faculty advisor to reject the leave application.
 void reject_leave(char buf1[])
 {
+    FILE *inFile;
+
     inFile = fopen("leave_record.txt", "a");
     printf("Enter the reason: ");
     char reason[1000];
     fflush(stdin);
-    gets(reason);
+    fgets(reason, 1000, stdin);
+    //gets(reason);
     fprintf(inFile, "%s", strtok(buf1, " "));
     // prints the necessary content into other file such that the student can get to know about the update.
     fprintf(inFile, " Your leave got rejected from %.10s to %.10s due to %s\n", buf1 + 41, buf1 + 55, reason);
@@ -1967,13 +2059,15 @@ void reject_leave(char buf1[])
     fclose(temp);
     remove("temp.txt");
 
-    system("cls");
+    clearscr();
     printf("Leave application has been rejected.\n");
 }
 
 // shows the leave application to the faculty advisor.
 void view_leave(char branch[])
 {
+    FILE *file;
+
     file = fopen("leave.txt", "r");
     const char *delim1 = " \t";
     char *cp2;
@@ -1981,7 +2075,7 @@ void view_leave(char branch[])
     if (file == NULL)
     {
         printf("No applications received\n");
-        fclose(file);
+        //fclose(file);
         choiceFunc();
         return;
     }
@@ -2014,10 +2108,10 @@ void view_leave(char branch[])
                 reject_leave(buf1);
                 break;
             case 3:
-                system("cls");
+                clearscr();
                 return;
             default:
-                system("cls");
+                clearscr();
                 printf("Wrong Choice\n");
                 choiceFunc();
                 goto t;
@@ -2031,6 +2125,8 @@ void view_leave(char branch[])
 // function that provides faculty advisor all his functions.
 void information_fac_FA(char Faculty_Name[], char branch[], char Sub[])
 {
+    FILE *file;
+
     // shows the pop up to the faculty advisor if any leave application is pending for him to update.
     file = fopen("leave.txt", "r");
     const char *delim1 = " \t";
@@ -2040,9 +2136,9 @@ void information_fac_FA(char Faculty_Name[], char branch[], char Sub[])
     if (file == NULL)
     {
         printf("No leave applications pending(press enter to continue)\n");
-        getch();
-        system("cls");
-        fclose(file);
+        getchar();
+        clearscr();
+        //fclose(file);
         count2++;
     }
     int choice1;
@@ -2066,7 +2162,7 @@ void information_fac_FA(char Faculty_Name[], char branch[], char Sub[])
         printf("===================================================\n");
         printf("Enter the choice: ");
         choice1 = is_digit();
-        system("cls");
+        clearscr();
         switch (choice1)
         {
         case 1:
@@ -2076,7 +2172,7 @@ void information_fac_FA(char Faculty_Name[], char branch[], char Sub[])
         case 2:
             break;
         default:
-            system("cls");
+            clearscr();
             printf("Wrong Choice\n");
             choiceFunc();
             goto u;
@@ -2099,7 +2195,7 @@ t:
     printf("Enter the choice: ");
     int choice;
     choice = is_digit();
-    system("cls");
+    clearscr();
     switch (choice)
     {
     case 1:
@@ -2132,7 +2228,7 @@ t:
     case 8:
         exitproject();
     default:
-        system("cls");
+        clearscr();
         printf("Wrong Choice");
         choiceFunc();
         goto t;
@@ -2156,7 +2252,7 @@ t:
     printf("Enter the choice: ");
     int choice;
     choice = is_digit();
-    system("cls");
+    clearscr();
     switch (choice)
     {
     case 1:
@@ -2185,7 +2281,7 @@ t:
     case 7:
         exitproject();
     default:
-        system("cls");
+        clearscr();
         printf("Wrong Choice\n");
         choiceFunc();
         goto t;
@@ -2195,12 +2291,14 @@ t:
 // function to hide the password.
 void maskInput(char password[])
 {
-    char ch;
+    //char ch;
     int i = 0;
+    disableecho();
 
+    /*
     while (1)
     {
-        ch = getch(); // Read a character without echoing it
+        ch = getchar(); // Read a character
         if (ch == '\r' || ch == '\n')
         {
             password[i] = '\0'; // Terminate the password string
@@ -2215,10 +2313,17 @@ void maskInput(char password[])
         else if (i < MAX_PASSWORD_LENGTH - 1)
         {
             // Display an asterisk and store the character
-            printf("*");
+            printf("%c",ch);
             password[i++] = ch;
         }
     }
+    */
+
+    scanf("%s",password);
+    enableecho();
+    while ((getchar()) != '\n');    
+
+
 }
 
 // function to authenticate admin.
@@ -2233,23 +2338,27 @@ void admin_login()
 
     printf("Enter Username: ");
     scanf("%s", Username1);
+
+    while ((getchar()) != '\n');    
     printf("Enter Password: ");
     maskInput(PassWord1);
+    //while ((getchar()) != '\n');    
+
 
     if (strcmp("Admin", Username1) == 0 && strcmp("Admin@iitbbs", PassWord1) == 0)
     {
-        system("cls");
+        clearscr();
         char Login[] = "LOGGED IN SUCCESSFULLY (Press Enter)";
         for (int i = 0; i < strlen(Login); i++)
         {
             printf("%c", Login[i]);
             Sleep(20);
         }
-        getch();
+        getchar();
         // function to check headerfile
         headercheck();
     t:
-        system("cls");
+        clearscr();
         printf("\n");
         printf("===========================================================\n");
         printf("||      1: Add students                                  ||\n");
@@ -2265,7 +2374,7 @@ void admin_login()
         printf("===========================================================\n\n");
         printf("Enter the choice: ");
         choice1 = is_digit();
-        system("cls");
+        clearscr();
         switch (choice1)
         {
         case 1:
@@ -2277,6 +2386,8 @@ void admin_login()
             char rollno1[] = "000000";
             bool if_student_present1 = 0;
             scanf("%s", rollno1);
+            while ((getchar()) != '\n');    
+
             // printf("%d", count);
             for (int i = 1; i < count - 1; i++)
                 if (strcmp(students[i].roll_no, rollno1) == 0)
@@ -2288,7 +2399,7 @@ void admin_login()
                 }
             if (if_student_present1 == 0)
             {
-                system("cls");
+                clearscr();
                 printf("The above roll number is not present.\n");
             }
             choiceFunc();
@@ -2299,6 +2410,8 @@ void admin_login()
             char rollno[] = "000000";
             bool if_student_present = 0;
             scanf("%s", rollno);
+            while ((getchar()) != '\n');    
+
             for (int i = 1; i < count - 1; i++)
                 if (strcmp(students[i].roll_no, rollno) == 0)
                 {
@@ -2308,7 +2421,7 @@ void admin_login()
                 }
             if (if_student_present == 0)
             {
-                system("cls");
+                clearscr();
                 printf("The above roll number is not present.\n");
             }
             choiceFunc();
@@ -2317,13 +2430,15 @@ void admin_login()
             printf("Enter the student's roll number: ");
             bool if_student_present2 = 0;
             char Roll_No[20];
-            scanf("%s", &Roll_No);
+            scanf("%s", Roll_No);
+            while ((getchar()) != '\n');    
+
 
             for (int i = 1; i < (count - 1); i++)
             {
                 if (strcmp(students[i].roll_no, Roll_No) == 0)
                 {
-                    system("cls");
+                    clearscr();
                     printf("Name: %s\tRoll_No: %s\n", students[i].name, students[i].roll_no);
                     view(i, true);
                     if_student_present2 = 1;
@@ -2332,7 +2447,7 @@ void admin_login()
             }
             if (if_student_present2 == 0)
             {
-                system("cls");
+                clearscr();
                 printf("The above roll number is not present.\n");
             }
             choiceFunc();
@@ -2343,6 +2458,8 @@ void admin_login()
             printf("For students of branch: 1. CS    2. EC    3. EE    4. ME    5. CE    6. MM    7. Overall    8. Exit\n");
             printf("===================================================================================================\n");
             scanf("%d", &input);
+            while ((getchar()) != '\n');    
+
             if (input > 0 && input < 7)
             {
                 viewSortedList_branch(input);
@@ -2358,7 +2475,7 @@ void admin_login()
             }
             else
             {
-                system("cls");
+                clearscr();
                 printf("Invalid input\n");
                 choiceFunc();
                 goto label;
@@ -2382,7 +2499,7 @@ void admin_login()
         case 10:
             exitproject();
         default:
-            system("cls");
+            clearscr();
             printf("Wrong Choice\n");
             choiceFunc();
             goto t;
@@ -2390,7 +2507,7 @@ void admin_login()
     }
     else
     {
-        system("cls");
+        clearscr();
         printf("Invalid login credentials.\n");
         choiceFunc();
         return;
@@ -2404,11 +2521,12 @@ void student_login()
     printf("          Welcome to the Student Login portal          \n");
     printf("=======================================================\n");
 u:
+    FILE *file;
     file = fopen("Subject.txt", "r");
     if (file == NULL)
     {
         printf("\n\nThe database is still under development...\nPlease wait");
-        fclose(file);
+        //fclose(file);
         choiceFunc();
         return;
     }
@@ -2422,9 +2540,11 @@ u:
 
     printf("\n\nEnter the Roll Number: ");
     scanf(" %s", RollNo);
+    while ((getchar()) != '\n');    
+
     printf("Enter the Password: ");
     maskInput(PassWord);
-    system("cls");
+    clearscr();
 
     while (1)
     {
@@ -2444,7 +2564,7 @@ u:
         int count1 = 0;
         if (strcmp(cp, PassWord) == 0)
         {
-            system("cls");
+            clearscr();
             char Login[] = "LOGGED IN SUCCESSFULLY (Press Enter)";
 
             for (int i = 0; i < strlen(Login); i++)
@@ -2452,8 +2572,8 @@ u:
                 printf("%c", Login[i]);
                 Sleep(20);
             }
-            getch();
-            system("cls");
+            getchar();
+            clearscr();
             retrieve_info();
             information_stu(RollNo);
             if_roll_number_present = 1;
@@ -2479,11 +2599,13 @@ void faculty_login()
     printf("          Welcome to the Faculty Login portal          \n");
     printf("=======================================================\n\n\n");
 b:
+    FILE *file, *inFile;
+
     file = fopen("Faculty.txt", "r");
     if (file == NULL)
     {
         printf("The database is still under development...\nPlease wait");
-        fclose(file);
+        //fclose(file);
         choiceFunc();
         return;
     }
@@ -2496,10 +2618,12 @@ b:
     char PassWord2[20];
 
     printf("Enter ID : ");
-    scanf("%s", &ID);
+    scanf("%s", ID);
+    while ((getchar()) != '\n');    
+
     printf("Enter the password : ");
     maskInput(PassWord2);
-    system("cls");
+    clearscr();
 
     while (1)
     {
@@ -2522,15 +2646,15 @@ b:
         {
             if_faculty_present = 1;
             cp2 = strtok(NULL, delim1);
-            system("cls");
+            clearscr();
             char Login[] = "LOGGED IN SUCCESSFULLY (Press Enter)\n";
             for (int i = 0; i < strlen(Login); i++)
             {
                 printf("%c", Login[i]);
                 Sleep(20);
             }
-            getch();
-            system("cls");
+            getchar();
+            clearscr();
             inFile = fopen("FacultyAdvisor.txt", "r");
             char *cp3;
             while (1)
@@ -2575,7 +2699,7 @@ void login()
 {
     int choice, choice1, input;
 v:
-    system("cls");
+    clearscr();
     printf("================================\n");
     printf("             LOGIN              \n");
     printf("================================\n");
@@ -2587,7 +2711,7 @@ v:
     printf("================================\n");
     printf("Enter the choice: ");
     choice = is_digit();
-    system("cls");
+    clearscr();
     switch (choice)
     {
     case 1:
@@ -2600,14 +2724,14 @@ v:
         faculty_login();
         goto v;
     case 4:
-        system("cls");
+        clearscr();
         return;
     case 5:
         exitproject();
     default:
-        system("cls");
+        clearscr();
         printf("Please enter a valid number. (Press enter to continue)");
-        getch();
+        getchar();
         choiceFunc();
         goto v;
     }
@@ -2631,16 +2755,18 @@ void aboutus()
     }
 
     printf("(Press Enter to Continue)");
-    getch();
+    getchar();
 
-    system("cls");
+    clearscr();
     int choice;
     printf("\nEnter  1: Go to Main Menu\n       2: Exit\n");
     printf("Enter the choice: ");
     scanf("%d", &choice);
+    while ((getchar()) != '\n');    
+
     if (choice == 1)
     {
-        system("cls");
+        clearscr();
         return;
     }
     else
@@ -2649,14 +2775,17 @@ void aboutus()
 
 int main()
 {
-    system("cls");
+    clearscr();
+    FILE *file;
+
     file = fopen("student.csv", "r");
     if (file != NULL)
     {
+        fclose(file);
         retrieve_info();
         retrieve_attendance();
     }
-    fclose(file);
+    
 
     char Welcome[] = "        ****************************        \n  Welcome to EduSync : Academic Profile Portal  \n        ****************************        \n";
     for (int i = 0; i < strlen(Welcome); i++)
@@ -2676,7 +2805,7 @@ t:
     printf("==========================\n");
     printf("Enter the choice: ");
     choice = is_digit();
-    system("cls");
+    clearscr();
     switch (choice)
     {
     case 1:
@@ -2689,7 +2818,7 @@ t:
         exitproject();
         break;
     default:
-        system("cls");
+        clearscr();
         printf("Wrong Choice\n");
         choiceFunc();
         goto t;

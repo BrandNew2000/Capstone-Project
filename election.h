@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include <conio.h>
+//#include "conio.h"
 #include <string.h>
 #include <stdlib.h>
 #include <errno.h>
@@ -42,11 +42,12 @@ int countStudents()
 //Starts a new election
 void initiateNewElection() 
 {
-    system("cls");
+    clearscr();
     Total_voters = countStudents();
     printf("\nNew Election Initiation:\n");
     printf("Enter the no. of candidates: ");
     scanf("%d", &No_of_Candidates);
+    while ((getchar()) != '\n');
 
     FILE *fp;
     fp = fopen("candidate.csv", "w");
@@ -88,13 +89,13 @@ void saveElectionInfoInFile()
     fclose(fp);
     printf("Saved Successfully :)\n");
     sleep(1);
-    system("cls");
+    clearscr();
 }
 
 //Declares the result of election winner or draw
 void getWinner()
 {
-    system("cls");
+    clearscr();
     struct candidate
     {
         int cid;
@@ -167,14 +168,14 @@ void getWinner()
     remove("candidate.csv");
     remove("ElectionInfo.csv");
     printf("(Press enter to return)\n");
-    getch();
-    system("cls");
+    getchar();
+    clearscr();
 }
 
 //Shows result of election to the admin
 void view_result_of_election_admin()
 {
-    system("cls");
+    clearscr();
     FILE *file;
     file = fopen("result.txt", "r");
     if (file == NULL)
@@ -197,7 +198,7 @@ void adminPanel()
         {
             char input;
         t:
-            system("cls");
+            clearscr();
             printf("\n==============================\n");
             printf("      ELECTION  CONTROLS      \n");
             printf("==============================\n");
@@ -208,7 +209,8 @@ void adminPanel()
             printf("==============================\n\n");
             printf("Option: ");
             scanf(" %c", &input);
-            system("cls");
+            while ((getchar()) != '\n');
+            clearscr();
 
             switch (input)
             {
@@ -217,20 +219,21 @@ void adminPanel()
                 saveElectionInfoInFile();
                 break;
             case '2':
-                printf("");
+                printf(" ");
                 FILE *fp;
                 fp = fopen("candidate.csv", "r");
                 if (fp == NULL)
                 {
                     printf("No active elections are going on.\n");
                     sleep(1);
-                    system("cls");
+                    clearscr();
                     break;
                 }
                 fclose(fp);
                 printf("\n--> Note: Once u declare the result, no more voting can be done.\n    If you wish to declare the result, please enter 1 or enter 0(or any other character) to go back.\n    Option: ");
                 int choice;
                 scanf("%d", &choice);
+                while ((getchar()) != '\n');
                 switch (choice)
                 {
                 case 1:
@@ -243,14 +246,14 @@ void adminPanel()
             case '3':
                 view_result_of_election_admin();
                 printf("\n(Press enter to return)\n");
-                getch();
-                system("cls");
+                getchar();
+                clearscr();
                 goto t;
             case '4':
                 return;
             default:
                 printf("Invalid Option(Press Enter)\n");
-                getch();
+                getchar();
                 goto t;
             }
         }
@@ -334,7 +337,8 @@ void castvote()
     char voteinput;
 t:
     printf("\nYour Vote (enter number)= ");
-    voteinput = getch();
+    voteinput = getchar();
+    getchar();
     voteinput -= 48;
     printf("*");
     if (voteinput < 1 || voteinput > num_of_candidates)
@@ -383,14 +387,14 @@ void studentPanel(char userID[])
             if (isVoted(userID) != 0)
             {
                 printf("\n  Vote already casted !!\n  Contact Admin for furthur query(Press enter to end the programme)\n");
-                getch();
+                getchar();
                 break;
             }
             castvote();
 
             saveVote(userID, voteInput);
             printf("\n\nThanks for your precious vote(Press Enter)\n");
-            getch();
+            getchar();
             break;
         }
     }
