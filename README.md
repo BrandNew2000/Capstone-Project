@@ -5,7 +5,7 @@
 - Linux Compatibility has been added to the program. (In theory, MacOS compatibilty has also been added. However, it is untested.)
 - Due to differences in design between the two OSs, the astrix (*) character is no longer printed when entering a password. However, it has been ensured that the entered password is not echoed to the terminal.
 - Multiple declarations of 'file' had to be added to each function to ensure the proper execution of fclose().
-- Many functions remain untested functionality is not guranteed.
+- Many functions remain untested. Functionality is not guranteed.
 
 
 ## Introduction
